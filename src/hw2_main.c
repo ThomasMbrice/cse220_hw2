@@ -9,7 +9,10 @@
 #include <string.h>
 #include <unistd.h> 
 
-int findmyargs(char *input, char *output, char *copy, char *paste, char *message);
+int checkmyCopy(char *copy);
+int checkmyPaste(char *paste);
+int checkmyMessaage(char *message);
+
 
 int main(int argc, char **argv) {
     char *input_file = NULL;
@@ -19,16 +22,19 @@ int main(int argc, char **argv) {
     char *message_arg = NULL;
     FILE *ip, *op;
     int repeatedoutflag = 0, repeatedinflag = 0, repeatcopyflag = 0, 
-    repeatpastflag = 0, repeatmessageflag =0; 
+    repeatpastflag = 0, repeatmessageflag =0, unrecflag = 0; 
 
     // Parse command-line arguments
     for (int i = 1; i < argc; i++) {
 
-        if (strcmp(argv[i], "-i") == 0 && i + 1 < argc) {
+        if ((strcmp(argv[i], "-i") == 0) && (i + 1 < argc)                              // checks for -i
+        && (strstr(argv[i + 1], ".ppm") != NULL || strstr(argv[i + 1], ".sbu") != NULL)) {  // check if it is a file
+
             input_file = argv[++i];
             repeatedinflag++;
+        } else if ((strcmp(argv[i], "-o") == 0) && (i + 1 < argc)                       //checks for -o
+        && (strstr(argv[i + 1], ".ppm") != NULL || strstr(argv[i + 1], ".sbu") != NULL)) {  // check if it is a file
 
-        } else if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
             output_file = argv[++i];
             repeatedoutflag++;
 
@@ -41,16 +47,32 @@ int main(int argc, char **argv) {
             repeatpastflag++;
 
         } else if (strcmp(argv[i], "-r") == 0 && i + 1 < argc) {
-            message_arg = argv[++i];
             repeatmessageflag++;
+            message_arg = argv[++i];
 
         }
         else
-            return UNRECOGNIZED_ARGUMENT;               //UNRECOGNIZED_ARGUMENT
+            unrecflag++;               //UNRECOGNIZED_ARGUMENT
     }
 
+    printf("I  %s\n", input_file);
+    printf("O  %s\n", output_file);
+    printf("P %s\n", paste_arg);
+    printf("R %s\n", message_arg);
+    printf("Rindex %d\n", repeatmessageflag);
 
-    if((repeatedinflag > 1) | (repeatedoutflag > 1) | (repeatcopyflag > 1) 
+
+    if((input_file == NULL) | (output_file == NULL) 
+    | (repeatcopyflag != 0 && checkmyCopy(copy_arg) == 1)
+    | (repeatpastflag != 0 && checkmyCopy(paste_arg) == 1)
+    | (repeatmessageflag != 0 && checkmyCopy(message_arg) == 1) 
+    ){                               //mising args
+        return MISSING_ARGUMENT;
+    }
+    else if (unrecflag != 0)
+        return UNRECOGNIZED_ARGUMENT;
+
+    else if((repeatedinflag > 1) | (repeatedoutflag > 1) | (repeatcopyflag > 1) 
     | (repeatpastflag > 1) |(repeatmessageflag > 1))    //DUPLICATE_ARGUMENT
         return DUPLICATE_ARGUMENT;
 
@@ -61,58 +83,98 @@ int main(int argc, char **argv) {
         return OUTPUT_FILE_UNWRITABLE;
 
     else if((repeatpastflag == 1) && (repeatcopyflag == 0))
-        return C_ARGUMENT_MISSING; 
+        return C_ARGUMENT_MISSING;
 
-
-    int checker = findmyargs(input_file, output_file, copy_arg, paste_arg, message_arg);
-    if(checker == 1){               //mising args
-        return MISSING_ARGUMENT;
-    }
-
-    // other methods will be inserted here after debugging
-
-    else if(checker == 2){          // c arg invalid 
+    else if(repeatcopyflag != 0 && checkmyCopy(copy_arg) == 2)           // c arg invalid 
         return C_ARGUMENT_INVALID;
-    }
-    else if(checker == 3){          // p arg invalid 
+    
+    else if(repeatpastflag != 0 && checkmyPaste(paste_arg) == 2)          // p arg invalid 
         return P_ARGUMENT_INVALID;
-    }
-    else if(checker == 4){          //r arg invalid
+    
+    else if(repeatmessageflag != 0 && checkmyMessaage(message_arg) == 2)         //r arg invalid
         return R_ARGUMENT_INVALID;
-    }
     
 
 
     return 0;
 }
 
-int findmyargs(char *input, char *output, char *copy, char *paste, char *message){
-    if((input == NULL) | (output == NULL)){
-        return 1;
-        printf("input fail %s\n", input);
-        printf("output fail %s\n", output);
 
+int checkmyCopy(char *copy){        // error handling
+    int commaCount = 0;
+    int numberCount = 0;
+
+    for (int i = 0; copy[i] != '\0'; i++) {
+        if (copy[i] == ',') {
+            commaCount++;
+        } 
+        else if (copy[i] >= '0' && copy[i] <= '9') {
+            while (copy[i] >= '0' && copy[i] <= '9') {
+                i++;
+            }
+            numberCount++;
+            i--;
+        }
     }
-        printf("extra fail %s\n", copy);
-        printf("extra fail %s\n", paste);
-        printf("extra fail %s\n", message);
 
-    return 0;
+    if(numberCount < 1)
+        return 1;                               //missing arg
+    else if((numberCount != 4) | (commaCount != 3))
+        return 2;                               //invalid carg
+    else
+        return 0;
+}
+
+int checkmyPaste(char *paste){              //error handling
+    int commaCount = 0;
+    int numberCount = 0;
+
+    for (int i = 0; paste[i] != '\0'; i++) {
+        if (paste[i] == ',') {
+            commaCount++;
+        } 
+        else if (paste[i] >= '0' && paste[i] <= '9') {
+            while (paste[i] >= '0' && paste[i] <= '9') {
+                i++;
+            }
+            numberCount++;
+            i--;
+        }
+    }
+    if(numberCount < 1)
+        return 1;                               //missing arg
+    else if((numberCount != 2) | (commaCount != 1))
+        return 2;                               //invalid carg
+    else
+        return 0;
+}
+
+int checkmyMessaage(char *message){
+    int commaCount = 0;
+    int numberCount = 0;
+    //int validformater = 0;
+
+    for (int i = 0; message[i] != '\0'; i++) {
+        if (message[i] == ',') {                  //checks commas
+            commaCount++;
+        } 
+        else if (message[i] >= '0' && message[i] <= '9') {          //checks how many nums
+            while (message[i] >= '0' && message[i] <= '9') {
+                i++;
+            }
+            numberCount++;
+            i--;
+        }
+    }
+
+    if(numberCount < 1)
+        return 1;                               //missing arg
+    else if((numberCount != 3) | (commaCount != 4))
+        return 2;                               //invalid carg
+    else
+        return 0;
+
 }
 
 
 
-/*
-int temp = 0;
-            for(unsigned long e = 0; e < strlen(copy_arg); e++){        //checks copyarg is valid
-                if(strcmp(&paste_arg[e], ",") == 0){
-                    temp++;
-                    if(!isdigit(&paste_arg[e+1])){
-                        temp = -1;
-                        break;
-                    }
-                }
-            }
-            if(temp != 1)                                        // causes error to throw later
-                copy_arg = NULL;
-*/
