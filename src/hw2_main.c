@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
             for(unsigned long e = 0; e < strlen(copy_arg); e++){        //checks copyarg is valid
                 if(strcmp(&copy_arg[e], ",") == 0){
                     temp++;
-                    if(!isdigit(&paste_arg[e+1])){
+                    if(!isdigit(&copy_arg[e+1])){
                         temp = -1;
                         break;
                     }
@@ -97,11 +97,3 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-
-/*
-    else if((input_file != NULL && repeatedinflag != 1) | (output_file != NULL && repeatedoutflag != 1) |
-    (copy_arg != NULL && repeatcopyflag != 1) | (paste_arg != NULL && repeatpastflag != 1) |
-    (message_arg != NULL && repeatmessageflag != 1))    //DUPLICATE_ARGUMENT
-        return DUPLICATE_ARGUMENT;
-*/
-
