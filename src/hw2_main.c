@@ -34,34 +34,10 @@ int main(int argc, char **argv) {
         } else if (strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
             copy_arg = argv[++i];
             repeatcopyflag++;
-            int temp = 0;
-            for(unsigned long e = 0; e < strlen(copy_arg); e++){        //checks copyarg is valid
-                if(strcmp(&copy_arg[e], ",") == 0){
-                    temp++;
-                    if(!isdigit(&copy_arg[e+1])){
-                        temp = -1;
-                        break;
-                    }
-                }
-            }
-            if(temp != 3)                                        // causes error to throw later
-                copy_arg = NULL;
 
         } else if (strcmp(argv[i], "-p") == 0 && i + 1 < argc) {
             paste_arg = argv[++i];
             repeatpastflag++;
-            int temp = 0;
-            for(unsigned long e = 0; e < strlen(copy_arg); e++){        //checks copyarg is valid
-                if(strcmp(&paste_arg[e], ",") == 0){
-                    temp++;
-                    if(!isdigit(&paste_arg[e+1])){
-                        temp = -1;
-                        break;
-                    }
-                }
-            }
-            if(temp != 1)                                        // causes error to throw later
-                copy_arg = NULL;
 
         } else if (strcmp(argv[i], "-r") == 0 && i + 1 < argc) {
             //message_arg = argv[++i];
@@ -72,10 +48,8 @@ int main(int argc, char **argv) {
             return UNRECOGNIZED_ARGUMENT;               //UNRECOGNIZED_ARGUMENT
     }
 
-    if((input_file == NULL) | (output_file == NULL))    //MISSING_ARGUMENT
-        return MISSING_ARGUMENT;
 
-    else if((repeatedinflag > 1) | (repeatedoutflag > 1) | (repeatcopyflag > 1) 
+    if((repeatedinflag > 1) | (repeatedoutflag > 1) | (repeatcopyflag > 1) 
     | (repeatpastflag > 1) |(repeatmessageflag > 1))    //DUPLICATE_ARGUMENT
         return DUPLICATE_ARGUMENT;
 
@@ -95,5 +69,30 @@ int main(int argc, char **argv) {
     //else if()                       //R_ARGUMENT_INVALID
     //    return R_ARGUMENT_INVALID;
 
+
     return 0;
 }
+
+
+
+int** SBUFileReader(FILE *ip){
+    char *lengths = fgets(0,1, ip);
+    int **array;
+
+}
+
+
+/*
+int temp = 0;
+            for(unsigned long e = 0; e < strlen(copy_arg); e++){        //checks copyarg is valid
+                if(strcmp(&paste_arg[e], ",") == 0){
+                    temp++;
+                    if(!isdigit(&paste_arg[e+1])){
+                        temp = -1;
+                        break;
+                    }
+                }
+            }
+            if(temp != 1)                                        // causes error to throw later
+                copy_arg = NULL;
+*/
