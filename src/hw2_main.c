@@ -9,13 +9,14 @@
 #include <string.h>
 #include <unistd.h> 
 
+int findmyargs(char *input, char *output, char *copy, char *paste, char *message);
 
 int main(int argc, char **argv) {
     char *input_file = NULL;
     char *output_file = NULL;
     char *copy_arg = NULL;
     char *paste_arg = NULL;
-    //char *message_arg = NULL;
+    char *message_arg = NULL;
     FILE *ip, *op;
     int repeatedoutflag = 0, repeatedinflag = 0, repeatcopyflag = 0, 
     repeatpastflag = 0, repeatmessageflag =0; 
@@ -40,7 +41,7 @@ int main(int argc, char **argv) {
             repeatpastflag++;
 
         } else if (strcmp(argv[i], "-r") == 0 && i + 1 < argc) {
-            //message_arg = argv[++i];
+            message_arg = argv[++i];
             repeatmessageflag++;
 
         }
@@ -62,24 +63,43 @@ int main(int argc, char **argv) {
     else if((repeatpastflag == 1) && (repeatcopyflag == 0))
         return C_ARGUMENT_MISSING; 
 
-    else if((repeatcopyflag > 0) && copy_arg == NULL)               //C_ARGUMENT_INVALID
+
+    int checker = findmyargs(input_file, output_file, copy_arg, paste_arg, message_arg);
+    if(checker == 1){               //mising args
+        return MISSING_ARGUMENT;
+    }
+
+    // other methods will be inserted here after debugging
+
+    else if(checker == 2){          // c arg invalid 
         return C_ARGUMENT_INVALID;
-    else if((repeatpastflag > 0) && paste_arg == NULL)                    //P_ARGUMENT_INVALID
+    }
+    else if(checker == 3){          // p arg invalid 
         return P_ARGUMENT_INVALID;
-    //else if()                       //R_ARGUMENT_INVALID
-    //    return R_ARGUMENT_INVALID;
+    }
+    else if(checker == 4){          //r arg invalid
+        return R_ARGUMENT_INVALID;
+    }
+    
 
 
     return 0;
 }
 
+int findmyargs(char *input, char *output, char *copy, char *paste, char *message){
+    if((input == NULL) | (output == NULL)){
+        return 1;
+        printf("input fail %s\n", input);
+        printf("output fail %s\n", output);
 
+    }
+        printf("extra fail %s\n", copy);
+        printf("extra fail %s\n", paste);
+        printf("extra fail %s\n", message);
 
-int** SBUFileReader(FILE *ip){
-    char *lengths = fgets(0,1, ip);
-    int **array;
-
+    return 0;
 }
+
 
 
 /*
