@@ -94,16 +94,16 @@ int main(int argc, char **argv) {
         return P_ARGUMENT_INVALID;
     
     else if(repeatmessageflag != 0 && checkmyMessaage(message_arg) == 2)         //r arg invalid
-        return R_ARGUMENT_INVALID;                                                  //end error handling section
+        return R_ARGUMENT_INVALID;                                                  
     
 
-//________________________________________________________________________________________________
+//________________________________________________________________________________________________end error handling
 
 
     char header[3];
     unsigned int **bigarray = NULL;
-    //unsigned int *colorarray = NULL;                                                     //big array                                                     //big array
-    int width = 0, length = 0, zero_if_ppm = 0, max = 255; //colorlen = 0;
+    unsigned int *colorarray = NULL;                                                     //big array                                                     //big array
+    int width = 0, length = 0, zero_if_ppm = 0, max = 255, colorlen = 0;
 
     if(strstr(input_file, ".ppm") != NULL){         // from ppm
         //printf("starting \n");
@@ -123,8 +123,28 @@ int main(int argc, char **argv) {
         
     }
     else{ 
-        zero_if_ppm = 1;        
-    }      
+        zero_if_ppm = 1;  
+        printf("starting \n");
+        fscanf(ip, "%s %d %d %d", header, &length, &width, &colorlen);
+        printf("w %d l %d cl %d \n", width, length, colorlen);
+        colorlen *= 3;
+        length *=2;
+        colorarray = malloc(colorlen * sizeof(unsigned int *));         //colorarray
+
+        bigarray = malloc(width * sizeof(unsigned int *));              //this is repeated
+        for(int i = 0; i < width; i++){
+            bigarray[i] = malloc(length * sizeof(unsigned int));
+        }
+
+        for(int i = 0; i < width; i++){                 //does allocation also repeated 
+            for(int e = 0; e < length; e++){
+                fscanf(ip,"%u", &bigarray[i][e]);
+            }
+        }
+    }    
+
+//________________________________________________________________________________________________ end data copy
+  
     
                                                                          // end data allocation
     zero_if_ppm = zero_if_ppm;
@@ -145,6 +165,18 @@ int main(int argc, char **argv) {
         }
     }
     else{
+        fprintf(op, "%s\n%d %d\n%d ", header, length/2, width, colorlen/3);
+        for(int i = 0; i < colorlen; i++){
+            fprintf(op,"%d ", colorarray[i]);                   // colors 
+        }
+        fprintf(op,"\n");
+
+        for(int i = 0; i < width; i++){
+            for(int e = 0; e < length; e++){
+                fprintf(op,"%d ", bigarray[i][e]);
+            }
+            fprintf(op,"\n");
+        }
 
     }
 
