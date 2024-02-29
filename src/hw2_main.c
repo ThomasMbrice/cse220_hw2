@@ -9,18 +9,19 @@
 #include <string.h>
 #include <unistd.h> 
 
-int checkmyCopy(char *copy);
-int checkmyPaste(char *paste);
-int checkmyMessaage(char *message);
-void allocatebigarray(char **bigarray, unsigned int length, unsigned int width);
+int checkmyCopy(const char *copy);
+int checkmyPaste(const char *paste);
+int checkmyMessaage(const char *message);
+void my_Copy(int z, unsigned char **bigarray, unsigned int length, unsigned int width, const char *copy_arg, const char *paste_arg);
+//void my_Message(int zero_if_ppm, char ** bigarray,unsigned int length, unsigned int width, char message_arg);
 
 
 int main(int argc, char **argv) {
-    char *input_file = NULL;
-    char *output_file = NULL;
-    char *copy_arg = NULL;
-    char *paste_arg = NULL;
-    char *message_arg = NULL;
+    const char *input_file = NULL;
+    const char *output_file = NULL;
+    const char *copy_arg = NULL;
+    const char *paste_arg = NULL;
+    const char *message_arg = NULL;
     FILE *ip, *op;
     int repeatedoutflag = 0, repeatedinflag = 0, repeatcopyflag = 0, 
     repeatpastflag = 0, repeatmessageflag =0, unrecflag = 0; 
@@ -95,44 +96,57 @@ int main(int argc, char **argv) {
     else if(repeatmessageflag != 0 && checkmyMessaage(message_arg) == 2)         //r arg invalid
         return R_ARGUMENT_INVALID;                                                  //end error handling section
     
-    int sizer = 0;
-    char **bigarray = NULL;                                                     //big array
-    char buffer[255];
-    unsigned int width = 0, length = 0;
-    if(strstr(input_file, ".ppm") != NULL){     // from ppm
-        while(fgets(buffer, 255, ip) != NULL){
-            if(sizer == 1 && sscanf(buffer, "%u %u", &length, &width) == 2)
-                allocatebigarray(bigarray, length, width);                       // array size is allocated
-            sizer++;
+
+//________________________________________________________________________________________________
+
+
+    char header[3];
+    unsigned int **bigarray = NULL;
+    //unsigned int *colorarray = NULL;                                                     //big array                                                     //big array
+    int width = 0, length = 0, zero_if_ppm = 0, max = 255; //colorlen = 0;
+
+    if(strstr(input_file, ".ppm") != NULL){         // from ppm
+        //printf("starting \n");
+        fscanf(ip, "%s %d %d %d", header, &length, &width, &max);
+        //printf("w %d l %d m %d \n", width, length, max);
+        length *= 3;
+        bigarray = malloc(width * sizeof(unsigned int *));              //init memory
+        for(int i = 0; i < width; i++){
+            bigarray[i] = malloc(length * sizeof(unsigned int));
         }
-    }
-    else{                                        //from sbu
-        while(fgets(buffer, 255, ip) != NULL){
-                if(sizer == 1 && sscanf(buffer, "%u %u", &length, &width) == 2)
-                allocatebigarray(bigarray, length, width);                       // array size is allocated
-            sizer++;        
+
+        for(int i = 0; i < width; i++){                 //does allocation
+            for(int e = 0; e < length; e++){
+                fscanf(ip,"%u", &bigarray[i][e]);
+            }
         }
-    }                                                                           // end data allocation
-
-
-
-    if(strstr(output_file, ".ppm") != NULL){     // to ppm
-        fprintf(op, "P3\n%d %d\n255\n", length, width);
-
-        // Write pixel data
-        for (unsigned int i = 0; i < length * 3; i++) {
-            for(unsigned int e = 0; e < width * 3; e++){
-                fputc(bigarray[i][e], op);
-        }
-    }
-
-    }
-    else{                                        //to sbu
         
     }
+    else{ 
+        zero_if_ppm = 1;        
+    }      
+    
+                                                                         // end data allocation
+    zero_if_ppm = zero_if_ppm;
+    //if(copy_arg != NULL)
+    //    my_Copy(zero_if_ppm, &bigarray, length, width, copy_arg, paste_arg);
+    //if(message_arg != NULL)
+        //my_Message(zero_if_ppm, &bigarray, length, width, *message_arg);
+
 
     
+    if(strstr(output_file, ".ppm") != NULL){         // from ppm
+        fprintf(op, "%s\n%d %d\n%d\n", header, length/3, width, max);
+        for(int i = 0; i < width; i++){
+            for(int e = 0; e < length; e++){
+                fprintf(op,"%d ", bigarray[i][e]);
+            }
+            fprintf(op,"\n");
+        }
+    }
+    else{
 
+    }
 
 
     free(bigarray);
@@ -141,12 +155,39 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+/*
+while(fgets(buffer, 255, ip) != NULL && sizer < 2){
+            if(sizer == 1 && sscanf(buffer, "%u %u", &length, &width) == 2)
+                allocatebigarray(&bigarray, length, width);                       // array size is allocated
+            sizer++;
+        }
+
+        for (unsigned int i = 0; i < (width * length * 3); i++) 
+        fscanf(ip, "%hhu", &bigarray[i]);                                 //god please let this work
+*/
+/*
+void my_Copy(int z, unsigned char **bigarray, unsigned int length, unsigned int width, const char *copy_arg, const char *paste_arg){
+
+    unsigned int *paste_cordx = 0, *paste_cordy = 0, *copy_cordx = 0, *copy_cordy = 0, *copylen = 0, *copyheight = 0;
+     if(sscanf(paste_arg, "%u,%u", paste_cordx, paste_cordy) == 2)
+     printf("show me printer %u %u\n" , *paste_cordx, *paste_cordy);
+
+    if(sscanf(copy_arg, "%u,%u,%u,%u", copy_cordx,copy_cordy,copylen,copyheight) == 4)
+         printf("show me copy %u %u\n", *copy_cordx, *copy_cordy);
+    
+    (void)z;
+    (void)**bigarray;
+    (void)length;
+    (void)width;
+
+}
+*/
 
 
 
 
 
-int checkmyCopy(char *copy){        // error handling
+int checkmyCopy(const char *copy){        // error handling
     int commaCount = 0;
     int numberCount = 0;
 
@@ -171,7 +212,7 @@ int checkmyCopy(char *copy){        // error handling
         return 0;
 }
 
-int checkmyPaste(char *paste){              //error handling
+int checkmyPaste(const char *paste){              //error handling
     int commaCount = 0;
     int numberCount = 0;
 
@@ -195,7 +236,7 @@ int checkmyPaste(char *paste){              //error handling
         return 0;
 }
 
-int checkmyMessaage(char *message){         //error check
+int checkmyMessaage(const char *message){         //error check
     int commaCount = 0;
     int numberCount = 0;
     //int validformater = 0;
@@ -222,9 +263,8 @@ int checkmyMessaage(char *message){         //error check
 
 }
 
-void allocatebigarray(char **bigarray, unsigned int length, unsigned int width){
-    bigarray = malloc(length * sizeof(char *));
-    for (unsigned int i = 0; i < length; i++) {
-        bigarray[i] = malloc(width * sizeof(char));
-    }
+/*
+void my_Message(int z, unsigned char **bigarray,unsigned int length, unsigned int width, char message_arg){
+
 }
+*/
