@@ -12,6 +12,7 @@
 int checkmyCopy(char *copy);
 int checkmyPaste(char *paste);
 int checkmyMessaage(char *message);
+void allocatebigarray(char **bigarray, unsigned int length, unsigned int width);
 
 
 int main(int argc, char **argv) {
@@ -54,13 +55,13 @@ int main(int argc, char **argv) {
         else
             unrecflag++;               //UNRECOGNIZED_ARGUMENT
     }
-
+    /*
     printf("I  %s\n", input_file);
     printf("O  %s\n", output_file);
     printf("P %s\n", paste_arg);
     printf("R %s\n", message_arg);
     printf("Rindex %d\n", repeatmessageflag);
-
+    */
 
     if((input_file == NULL) | (output_file == NULL) 
     | (repeatcopyflag != 0 && checkmyCopy(copy_arg) == 1)
@@ -92,12 +93,57 @@ int main(int argc, char **argv) {
         return P_ARGUMENT_INVALID;
     
     else if(repeatmessageflag != 0 && checkmyMessaage(message_arg) == 2)         //r arg invalid
-        return R_ARGUMENT_INVALID;
+        return R_ARGUMENT_INVALID;                                                  //end error handling section
+    
+    int sizer = 0;
+    char **bigarray = NULL;                                                     //big array
+    char buffer[255];
+    unsigned int width = 0, length = 0;
+    if(strstr(input_file, ".ppm") != NULL){     // from ppm
+        while(fgets(buffer, 255, ip) != NULL){
+            if(sizer == 1 && sscanf(buffer, "%u %u", &length, &width) == 2)
+                allocatebigarray(bigarray, length, width);                       // array size is allocated
+            sizer++;
+        }
+    }
+    else{                                        //from sbu
+        while(fgets(buffer, 255, ip) != NULL){
+                if(sizer == 1 && sscanf(buffer, "%u %u", &length, &width) == 2)
+                allocatebigarray(bigarray, length, width);                       // array size is allocated
+            sizer++;        
+        }
+    }                                                                           // end data allocation
+
+
+
+    if(strstr(output_file, ".ppm") != NULL){     // to ppm
+        fprintf(op, "P3\n%d %d\n255\n", length, width);
+
+        // Write pixel data
+        for (unsigned int i = 0; i < length * 3; i++) {
+            for(unsigned int e = 0; e < width * 3; e++){
+                fputc(bigarray[i][e], op);
+        }
+    }
+
+    }
+    else{                                        //to sbu
+        
+    }
+
     
 
 
+
+    free(bigarray);
+    fclose(ip);
+    fclose(op);
     return 0;
 }
+
+
+
+
 
 
 int checkmyCopy(char *copy){        // error handling
@@ -149,7 +195,7 @@ int checkmyPaste(char *paste){              //error handling
         return 0;
 }
 
-int checkmyMessaage(char *message){
+int checkmyMessaage(char *message){         //error check
     int commaCount = 0;
     int numberCount = 0;
     //int validformater = 0;
@@ -176,5 +222,9 @@ int checkmyMessaage(char *message){
 
 }
 
-
-
+void allocatebigarray(char **bigarray, unsigned int length, unsigned int width){
+    bigarray = malloc(length * sizeof(char *));
+    for (unsigned int i = 0; i < length; i++) {
+        bigarray[i] = malloc(width * sizeof(char));
+    }
+}
