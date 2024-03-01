@@ -174,12 +174,12 @@ int main(int argc, char **argv) {
     }
     else{
         fprintf(op, "%s\n%d %d\n%d ", header, length/2, width, colorlen/3);
-        printf(" bruh %s\n%d %d\n%d ", header, length/2, width, colorlen/3);
+        //printf(" bruh %s\n%d %d\n%d ", header, length/2, width, colorlen/3);
         for(int i = 0; i < colorlen; i++){
             fprintf(op,"%d ", colorarray[i]);                   // colors 
         }
         fprintf(op,"\n");
-        printf("colorlen sucess\n");
+        //printf("colorlen sucess\n");
         for(int i = 0; i < width; i++){
             for(int e = 0; e < length; e++){
                 fprintf(op,"%d ", bigarray[i][e]);
