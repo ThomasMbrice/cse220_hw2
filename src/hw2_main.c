@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 //________________________________________________________________________________________________end error handling
 
 
-    char header[3];
+    char header[3] = {'i','i','i'};
     unsigned char **bigarray = NULL;
     unsigned int *colorarray = NULL;                                                     //big array                                                     //big array
     int width = 0, length = 0, zero_if_ppm = 0, max = 255, colorlen = 0;
@@ -128,26 +128,29 @@ int main(int argc, char **argv) {
         fscanf(ip, "%s %d %d %d", header, &length, &width, &colorlen);
         //printf("w %d l %d cl %d \n", width, length, colorlen);
         colorlen *= 3;
+        printf("%d\n", colorlen);
         length *=2;
         colorarray = malloc(colorlen * sizeof(unsigned int));         //colorarray
 
-        for(int e = 0; e < colorlen; e++)
+        for(int e = 0; e < colorlen; e++){
             fscanf(ip,"%u", &colorarray[e]);
-        
+            //printf("%d ", colorarray[e]);
+        }        
         bigarray = malloc(width * sizeof(unsigned char *));              //this is repeated
         for(int i = 0; i < width; i++){
             bigarray[i] = malloc(length * sizeof(unsigned char));
         }
         
-        
+        printf("starting onboard\n");
         for(int i = 0; i < width; i++){                 //does allocation also repeated 
             for(int e = 0; e < length; e++){
                 if(fscanf(ip,"%hhu", &bigarray[i][e]) == -1){
                 break;
                 }
-                //printf("%c ", bigarray[i][e]); 
+                printf("%c ", bigarray[i][e]); 
             }
         }
+        printf("finished onboard\n");
     }    
 
 //________________________________________________________________________________________________ end data copy
@@ -160,8 +163,8 @@ int main(int argc, char **argv) {
     //if(message_arg != NULL)
         //my_Message(zero_if_ppm, &bigarray, length, width, *message_arg);
 
-
-    
+    printf("index 0 %u \n", colorarray[0]);
+    printf("first copy\n");
     if(strstr(output_file, ".ppm") != NULL){         // from ppm
         fprintf(op, "%s\n%d %d\n%d\n", header, length/3, width, max);
        // printf(" burh %s %d %d %d \n", header, length/3, width, max);
@@ -173,20 +176,25 @@ int main(int argc, char **argv) {
         }
     }
     else{
-        fprintf(op, "%s\n%d %d\n%d ", header, length/2, width, colorlen/3);
-        //printf(" bruh %s\n%d %d\n%d ", header, length/2, width, colorlen/3);
+                printf("index 0 %u ", colorarray[0]);
+        printf("first print %s\n%d %d\n ", header, length/2, width);
+        fprintf(op, "%s\n%d %d\n", header, length/2, width);
+        printf("index 0 %u ", colorarray[0]);
+        /*
         for(int i = 0; i < colorlen; i++){
+            //printf("%d", colorarray[i]);
             fprintf(op,"%d ", colorarray[i]);                   // colors 
         }
+        
         fprintf(op,"\n");
-        //printf("colorlen sucess\n");
+        printf("colorlen sucess\n");
         for(int i = 0; i < width; i++){
             for(int e = 0; e < length; e++){
                 fprintf(op,"%d ", bigarray[i][e]);
             }
             fprintf(op,"\n");
         }
-
+        */
     }
 
 
