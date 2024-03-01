@@ -133,21 +133,19 @@ int main(int argc, char **argv) {
 
         for(int e = 0; e < colorlen; e++)
             fscanf(ip,"%u", &colorarray[e]);
-
+        
         bigarray = malloc(width * sizeof(unsigned char *));              //this is repeated
         for(int i = 0; i < width; i++){
             bigarray[i] = malloc(length * sizeof(unsigned char));
         }
-
+        
+        
         for(int i = 0; i < width; i++){                 //does allocation also repeated 
             for(int e = 0; e < length; e++){
-                if(fscanf(ip,"%c", &bigarray[i][e]) == -1)
+                if(fscanf(ip,"%hhu", &bigarray[i][e]) == -1){
                 break;
-            }
-        }
-        for(int i = 0; i < width; i++){                 //does allocation also repeated 
-            for(int e = 0; e < length; e++){
-                //printf("%d ", bigarray[i][e]);
+                }
+                //printf("%c ", bigarray[i][e]); 
             }
         }
     }    
@@ -166,6 +164,7 @@ int main(int argc, char **argv) {
     
     if(strstr(output_file, ".ppm") != NULL){         // from ppm
         fprintf(op, "%s\n%d %d\n%d\n", header, length/3, width, max);
+       // printf(" burh %s %d %d %d \n", header, length/3, width, max);
         for(int i = 0; i < width; i++){
             for(int e = 0; e < length; e++){
                 fprintf(op,"%d ", bigarray[i][e]);
@@ -175,11 +174,12 @@ int main(int argc, char **argv) {
     }
     else{
         fprintf(op, "%s\n%d %d\n%d ", header, length/2, width, colorlen/3);
+        printf(" bruh %s\n%d %d\n%d ", header, length/2, width, colorlen/3);
         for(int i = 0; i < colorlen; i++){
             fprintf(op,"%d ", colorarray[i]);                   // colors 
         }
         fprintf(op,"\n");
-
+        printf("colorlen sucess\n");
         for(int i = 0; i < width; i++){
             for(int e = 0; e < length; e++){
                 fprintf(op,"%d ", bigarray[i][e]);
