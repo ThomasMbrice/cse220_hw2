@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
 
 
     char header[3];
-    unsigned int **bigarray = NULL;
+    unsigned char **bigarray = NULL;
     unsigned int *colorarray = NULL;                                                     //big array                                                     //big array
     int width = 0, length = 0, zero_if_ppm = 0, max = 255, colorlen = 0;
 
@@ -110,35 +110,44 @@ int main(int argc, char **argv) {
         fscanf(ip, "%s %d %d %d", header, &length, &width, &max);
         //printf("w %d l %d m %d \n", width, length, max);
         length *= 3;
-        bigarray = malloc(width * sizeof(unsigned int *));              //init memory
+        bigarray = malloc(width * sizeof(unsigned char *));              //init memory
         for(int i = 0; i < width; i++){
-            bigarray[i] = malloc(length * sizeof(unsigned int));
+            bigarray[i] = malloc(length * sizeof(unsigned char));
         }
 
         for(int i = 0; i < width; i++){                 //does allocation
             for(int e = 0; e < length; e++){
-                fscanf(ip,"%u", &bigarray[i][e]);
+                fscanf(ip,"%c", &bigarray[i][e]);
             }
         }
         
     }
     else{ 
         zero_if_ppm = 1;  
-        printf("starting \n");
+        //printf("starting \n");
         fscanf(ip, "%s %d %d %d", header, &length, &width, &colorlen);
-        printf("w %d l %d cl %d \n", width, length, colorlen);
+        //printf("w %d l %d cl %d \n", width, length, colorlen);
         colorlen *= 3;
         length *=2;
-        colorarray = malloc(colorlen * sizeof(unsigned int *));         //colorarray
+        colorarray = malloc(colorlen * sizeof(unsigned int));         //colorarray
 
-        bigarray = malloc(width * sizeof(unsigned int *));              //this is repeated
+        for(int e = 0; e < colorlen; e++)
+            fscanf(ip,"%u", &colorarray[e]);
+
+        bigarray = malloc(width * sizeof(unsigned char *));              //this is repeated
         for(int i = 0; i < width; i++){
-            bigarray[i] = malloc(length * sizeof(unsigned int));
+            bigarray[i] = malloc(length * sizeof(unsigned char));
         }
 
         for(int i = 0; i < width; i++){                 //does allocation also repeated 
             for(int e = 0; e < length; e++){
-                fscanf(ip,"%u", &bigarray[i][e]);
+                if(fscanf(ip,"%c", &bigarray[i][e]) == -1)
+                break;
+            }
+        }
+        for(int i = 0; i < width; i++){                 //does allocation also repeated 
+            for(int e = 0; e < length; e++){
+                //printf("%d ", bigarray[i][e]);
             }
         }
     }    
@@ -182,6 +191,7 @@ int main(int argc, char **argv) {
 
 
     free(bigarray);
+    free(colorarray);
     fclose(ip);
     fclose(op);
     return 0;
