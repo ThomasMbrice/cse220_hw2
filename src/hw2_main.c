@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
         fscanf(ip, "%s %d %d %d", header, &length, &width, &max);
         length *= 3;
 
-        colorarray = malloc(width * length * 32);              //init memory
+        colorarray = malloc((width * length * 32)+1);              //init memory
 
         for(int i = 0; i < width*length; i++){                 //does allocation
             fscanf(ip," %u", &colorarray[i]);
@@ -144,7 +144,8 @@ int main(int argc, char **argv) {
         printf("finished onboard\n \n");
     }
 
-    /*
+    //  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
     if(strstr(output_file, ".ppm") != NULL){         // from ppm
         fprintf(op, "%s\n%d %d\n%d\n", header, length/3, width, max);
         printf("e\n");
@@ -152,8 +153,7 @@ int main(int argc, char **argv) {
         fprintf(op, "%u ", colorarray[i]);
         }
     }
-    */
-    //else{
+    else{
         printf("printhoe");
         fprintf(op, "%s\n%d %d\n %d", header, length/2, width, colorlen);
         for(int i = 0; i < colorlen; i++){
@@ -166,7 +166,7 @@ int main(int argc, char **argv) {
         for(int i = 0; i < width; i++)
             fprintf(op,"%s ", bigarray[i]);
             
-    //}
+    }
 
 
     free(bigarray);
