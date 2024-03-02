@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
                 if(fscanf(ip,"%hhu", &bigarray[i][e]) == -1){
                 break;
                 }
-                printf("%c ", bigarray[i][e]); 
+                //printf("%c ", bigarray[i][e]); 
             }
         }
         printf("finished onboard\n");
@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
     //if(message_arg != NULL)
         //my_Message(zero_if_ppm, &bigarray, length, width, *message_arg);
 
-    printf("index 0 %u \n", colorarray[0]);
+    //printf("index 0 %u \n", colorarray[0]);
     printf("first copy\n");
     if(strstr(output_file, ".ppm") != NULL){         // from ppm
         fprintf(op, "%s\n%d %d\n%d\n", header, length/3, width, max);
@@ -176,9 +176,9 @@ int main(int argc, char **argv) {
         }
     }
     else{
-                printf("index 0 %u ", colorarray[0]);
-        printf("first print %s\n%d %d\n ", header, length/2, width);
-        fprintf(op, "%s\n%d %d\n", header, length/2, width);
+        printf("index 0 %u ", colorarray[0]);
+        printf("first print %s\n%d %d\n ", header, length/2, 100);
+        fprintf(op, "%s\n%d %d\n", header, length/2, 1000);
         printf("index 0 %u ", colorarray[0]);
         /*
         for(int i = 0; i < colorlen; i++){
