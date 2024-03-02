@@ -141,14 +141,14 @@ int main(int argc, char **argv) {
             //printf("%s, index :%d \n", bigarray[index], index); 
             index++;            
         }
-        printf("finished onboard\n \n");
+        ..printf("finished onboard\n \n");
     }
 
     //  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     if(strstr(output_file, ".ppm") != NULL){         // from ppm
         fprintf(op, "%s\n%d %d\n%d\n", header, length/3, width, max);
-        printf("e\n");
+        //printf("e\n");
         for (int i = 0; i < width * length; ++i) {
         fprintf(op, "%u ", colorarray[i]);
         }
@@ -157,7 +157,7 @@ int main(int argc, char **argv) {
         printf("printhoe");
         fprintf(op, "%s\n%d %d\n %d", header, length/2, width, colorlen);
         for(int i = 0; i < colorlen; i++){
-            printf("%d", colorarray[i]);
+            //printf("%d", colorarray[i]);
             fprintf(op,"%d ", colorarray[i]);                   // colors 
         }        
         
