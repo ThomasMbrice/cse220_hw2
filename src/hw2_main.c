@@ -117,12 +117,24 @@ int main(int argc, char **argv) {
         for(int i = 0; i < width*length; i++){                 //does allocation
             fscanf(ip," %d", &colorarray[i]);
         }
+
+    //  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        fprintf(op, "%s\n%d %d\n%d\n", header, length/3, width, max);
+        //printf("%s\n%d %d\n%d\n", header, length/3, width, max);
+        //printf("\n wrong method \n");
+        for (int i = 0; i < width * length; ++i) {
+        fprintf(op, "%d ", colorarray[i]);
+        //printf("%d ", colorarray[i]);
+        }
+        free(colorarray);
+
     }
     else{ 
         fscanf(ip, "%s %d %d %d", header, &length, &width, &colorlen);
         //printf("outlook %s %d %d %d\n", header, length, width, colorlen);
         colorlen *= 3;
-        printf("color len %d\n", colorlen);
+        //printf("color len %d\n", colorlen);
 
         bigarray = malloc((width *length* 8));              //this is repeated
 
@@ -136,7 +148,7 @@ int main(int argc, char **argv) {
         bigarraybrother = (int *)malloc(colorlen * 32);         //colorarray
 
         for(int e = 0; e < colorlen; e++){
-            fscanf(ip,"%d", &bigarraybrother[e]);
+            fscanf(ip,"%d ", &bigarraybrother[e]);
         }   
 
         //printf("starting onboard %ld \n", sizeof(bigarray));
@@ -145,12 +157,30 @@ int main(int argc, char **argv) {
             index++;            
         }
 
-    }
-
     //  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+        //printf("%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
+        fprintf(op, "%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
+        
+        for(int z = 0; z < colorlen; z++){
+            //printf("%d ", bigarraybrother[z]);
+            fprintf(op,"%d ", bigarraybrother[z]);                   // colors 
+        }        
+        
+        fprintf(op,"\n");
+        printf("\n");
 
-    
+        for(int i = 0; i < index; i++){
+            fprintf(op,"%s ", bigarray[i]);
+            //printf("%s ", bigarray[i]);
+        }
+
+        free(bigarray);
+        free(bigarraybrother);
+    }
+
+
+    /*
     if(strstr(output_file, ".ppm") != NULL){         // from ppm
         fprintf(op, "%s\n%d %d\n%d\n", header, length/3, width, max);
         //printf("%s\n%d %d\n%d\n", header, length/3, width, max);
@@ -159,15 +189,16 @@ int main(int argc, char **argv) {
         fprintf(op, "%d ", colorarray[i]);
         //printf("%d ", colorarray[i]);
         }
+        free(colorarray);
     }
     if(strstr(output_file, ".sbu") != NULL){         // from ppm
 
         printf("%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
-        //fprintf(op, "%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
+        fprintf(op, "%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
         
-        //for(int z = 0; z < 0; z++){
-        //    fprintf(op,"%d ", bigarraybrother[z]);                   // colors 
-        //}        
+        for(int z = 0; z < 0; z++){
+            fprintf(op,"%d ", bigarraybrother[z]);                   // colors 
+        }        
         
         fprintf(op,"\n");
 
@@ -175,13 +206,12 @@ int main(int argc, char **argv) {
             fprintf(op,"%s ", bigarray[i]);
             //printf("%s ", bigarray[i]);
         }
+
+        free(bigarray);
+        free(bigarraybrother);
     }
-    if(colorarray != NULL)
-    free(colorarray);
-    if(bigarray != NULL)
-    free(bigarray);
-    if(bigarraybrother != NULL)
-    //free(bigarraybrother);
+    */
+
     fclose(ip);
     fclose(op);
     return 0;
