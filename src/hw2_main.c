@@ -12,7 +12,7 @@
 int checkmyCopy(const char *copy);
 int checkmyPaste(const char *paste);
 int checkmyMessaage(const char *message);
-void my_Copy(int z, unsigned char **bigarray, unsigned int length, unsigned int width, const char *copy_arg, const char *paste_arg);
+//void my_Copy(int z, unsigned char **bigarray, unsigned int length, unsigned int width, const char *copy_arg, const char *paste_arg);
 //void my_Message(int zero_if_ppm, char ** bigarray,unsigned int length, unsigned int width, char message_arg);
 
 
@@ -81,8 +81,10 @@ int main(int argc, char **argv) {
     else if ((ip = fopen(input_file, "r")) == NULL)          //INPUT_FILE_MISSING
         return INPUT_FILE_MISSING;
 
-    else if ((op = fopen(output_file, "w")) == NULL)         //OUTPUT_FILE_UNWRITABLE
+    else if ((op = fopen(output_file, "w")) == NULL){        //OUTPUT_FILE_UNWRITABLE
+        printf("FILE UNWRITABLE \n");
         return OUTPUT_FILE_UNWRITABLE;
+    }
 
     else if((repeatpastflag == 1) && (repeatcopyflag == 0))
         return C_ARGUMENT_MISSING;
@@ -101,7 +103,8 @@ int main(int argc, char **argv) {
 
     char header[3] = {'i','i','i'};
     signed char **bigarray = NULL;
-    int *colorarray = NULL;  
+    int *colorarray = NULL;
+    int *bigarraybrother = NULL;
     int index = 0;
     int width = 0, length = 0, max = 255, colorlen = 0;
 
@@ -109,7 +112,7 @@ int main(int argc, char **argv) {
         fscanf(ip, "%s %d %d %d", header, &length, &width, &max);
         length *= 3;
 
-        colorarray = malloc((width * length * 32)+1);              //init memory
+        colorarray = malloc((width * length * 32));              //init memory
 
         for(int i = 0; i < width*length; i++){                 //does allocation
             fscanf(ip," %d", &colorarray[i]);
@@ -119,28 +122,29 @@ int main(int argc, char **argv) {
         fscanf(ip, "%s %d %d %d", header, &length, &width, &colorlen);
         //printf("outlook %s %d %d %d\n", header, length, width, colorlen);
         colorlen *= 3;
-        //printf("color len %d\n", colorlen);
+        printf("color len %d\n", colorlen);
 
-        colorarray = malloc((colorlen * 32) + 8);         //colorarray
+        bigarray = malloc((width *length* 8));              //this is repeated
 
-        for(int e = 0; e < colorlen; e++){
-            fscanf(ip,"%d", &colorarray[e]);
-        }   
-
-        bigarray = malloc((width *length* 8) + 8);              //this is repeated
-
-        for(int i = 0; i<width *length* 8; i++){
+        for(int i = 0; i<width *length; i++){
             bigarray[i] = malloc(16);
         }
         
-        if((bigarray == NULL) | (bigarray[0] == NULL))
+        if((bigarray == NULL))
             printf("major failure");
+
+        bigarraybrother = (int *)malloc(colorlen * 32);         //colorarray
+
+        for(int e = 0; e < colorlen; e++){
+            fscanf(ip,"%d", &bigarraybrother[e]);
+        }   
 
         //printf("starting onboard %ld \n", sizeof(bigarray));
         while(fscanf(ip, " %s", bigarray[index]) == 1){                 //does allocation also repeated    
             //printf("%s, index :%d \n", bigarray[index], index); 
             index++;            
         }
+
     }
 
     //  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -150,31 +154,34 @@ int main(int argc, char **argv) {
     if(strstr(output_file, ".ppm") != NULL){         // from ppm
         fprintf(op, "%s\n%d %d\n%d\n", header, length/3, width, max);
         //printf("%s\n%d %d\n%d\n", header, length/3, width, max);
-        //printf("\n wrong method \n");
+        printf("\n wrong method \n");
         for (int i = 0; i < width * length; ++i) {
         fprintf(op, "%d ", colorarray[i]);
         //printf("%d ", colorarray[i]);
         }
     }
-    else{
+    if(strstr(output_file, ".sbu") != NULL){         // from ppm
 
-        fprintf(op, "%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
         printf("%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
-
-        for(int z = 0; z < 0; z++){
-            fprintf(op,"%d ", colorarray[z]);                   // colors 
-        }        
+        //fprintf(op, "%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
+        
+        //for(int z = 0; z < 0; z++){
+        //    fprintf(op,"%d ", bigarraybrother[z]);                   // colors 
+        //}        
         
         fprintf(op,"\n");
 
         for(int i = 0; i < index; i++){
             fprintf(op,"%s ", bigarray[i]);
-            printf("%s ", bigarray[i]);
+            //printf("%s ", bigarray[i]);
         }
     }
-    
+    if(colorarray != NULL)
     free(colorarray);
+    if(bigarray != NULL)
     free(bigarray);
+    if(bigarraybrother != NULL)
+    //free(bigarraybrother);
     fclose(ip);
     fclose(op);
     return 0;
