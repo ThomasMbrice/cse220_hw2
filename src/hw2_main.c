@@ -135,6 +135,7 @@ int main(int argc, char **argv) {
         else{
             *op = ppm_to_sbu(colorarray, op, (width * length * 32), width, length/3);
         }
+        
         free(colorarray);
 
     }
@@ -218,7 +219,7 @@ FILE ppm_to_sbu(int *colorarray, FILE *op, unsigned int len, int width, int leng
     }
 
     fprintf(op, "%s\n%d %d\n%d ", "SBU", length, width, colorlen/3);
-   // printf("%s\n%d %d\n%d ", "SBU", length, width, colorlen/3);
+    //printf("%s\n%d %d\n%d ", "SBU", length, width, colorlen/3);
 
     for(int z = 0; z < colorlen; z++){
         //printf("%d ", colors_of_SBU[z]);
@@ -237,21 +238,25 @@ FILE ppm_to_sbu(int *colorarray, FILE *op, unsigned int len, int width, int leng
             && (colors_of_SBU[e+2] == colorarray[i+2])) | (i == 0))
             break;
         }
-        bigarray_fraud[fruad_indexer++] = (e/3);
+        bigarray_fraud[fruad_indexer] = (e/3);
+        printf("%d ", bigarray_fraud[fruad_indexer++]);
     }
+    printf("\n\n");
 
     int i = 0;
     for(; i < fruad_indexer; i++){
         if(bigarray_fraud[i] == bigarray_fraud[i+1]){
             int repeater = bigarray_fraud[i], adder = 1;
-            while(repeater == bigarray_fraud[adder])
-                adder++;
-            fprintf(op,"*%d %d ", adder, repeater);                   // copy colors 
-            //printf("*%d %d ", adder, repeater);
+            while(repeater == bigarray_fraud[adder]){
+                adder++;                                    //error happens here????
+            }
+            fprintf(op,"*%d %d ", repeater, adder);                   // copy colors 
+            printf("*%d %d ", repeater, adder);
+            i+=adder;
         }
         else{
             fprintf(op,"%d ", bigarray_fraud[i]);                   // copy colors 
-            //printf("%d ", bigarray_fraud[i]);
+            printf("%d ", bigarray_fraud[i]);
         }
 
     }
