@@ -12,6 +12,8 @@
 int checkmyCopy(const char *copy);
 int checkmyPaste(const char *paste);
 int checkmyMessaage(const char *message);
+FILE ppm_to_sbu(int *colorarray, FILE *op, unsigned int len, int width, int length);
+FILE sbu_to_ppm(signed char **bigarray, int *bigarraybrother, FILE *op);
 //void my_Copy(int z, unsigned char **bigarray, unsigned int length, unsigned int width, const char *copy_arg, const char *paste_arg);
 //void my_Message(int zero_if_ppm, char ** bigarray,unsigned int length, unsigned int width, char message_arg);
 
@@ -116,16 +118,22 @@ int main(int argc, char **argv) {
 
         for(int i = 0; i < width*length; i++){                 //does allocation
             fscanf(ip," %d", &colorarray[i]);
+            //printf("%d ", colorarray[i]);
         }
 
     //  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        fprintf(op, "%s\n%d %d\n%d\n", header, length/3, width, max);
-        //printf("%s\n%d %d\n%d\n", header, length/3, width, max);
-        //printf("\n wrong method \n");
-        for (int i = 0; i < width * length; ++i) {
-        fprintf(op, "%d ", colorarray[i]);
-        //printf("%d ", colorarray[i]);
+        if(strstr(output_file, ".ppm") != NULL){         // to ppm       WORKS DO NOT EDIT
+            fprintf(op, "%s\n%d %d\n%d\n", header, length/3, width, max);
+            //printf("%s\n%d %d\n%d\n", header, length/3, width, max);
+            //printf("\n wrong method \n");
+            for (int i = 0; i < width * length; ++i) {
+            fprintf(op, "%d ", colorarray[i]);
+            //printf("%d ", colorarray[i]);
+            }
+        }
+        else{
+            *op = ppm_to_sbu(colorarray, op, (width * length * 32), width, length/3);
         }
         free(colorarray);
 
@@ -159,63 +167,109 @@ int main(int argc, char **argv) {
 
     //  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        //printf("%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
-        fprintf(op, "%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
+        if(strstr(output_file, ".sbu") != NULL){         // to sbu       WORKS DO NOT EDIT
+            //printf("%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
+            fprintf(op, "%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
         
-        for(int z = 0; z < colorlen; z++){
-            //printf("%d ", bigarraybrother[z]);
-            fprintf(op,"%d ", bigarraybrother[z]);                   // colors 
-        }        
+            for(int z = 0; z < colorlen; z++){
+                //printf("%d ", bigarraybrother[z]);
+                fprintf(op,"%d ", bigarraybrother[z]);                   // colors 
+            }        
         
-        fprintf(op,"\n");
-        printf("\n");
+            fprintf(op,"\n");
+            //printf("\n");
 
-        for(int i = 0; i < index; i++){
-            fprintf(op,"%s ", bigarray[i]);
-            //printf("%s ", bigarray[i]);
+            for(int i = 0; i < index; i++){
+                fprintf(op,"%s ", bigarray[i]);
+                //printf("%s ", bigarray[i]);
+            }
+        }
+        else{
+            *op = sbu_to_ppm(bigarray, bigarraybrother, op);
         }
 
         free(bigarray);
         free(bigarraybrother);
     }
 
-
-    /*
-    if(strstr(output_file, ".ppm") != NULL){         // from ppm
-        fprintf(op, "%s\n%d %d\n%d\n", header, length/3, width, max);
-        //printf("%s\n%d %d\n%d\n", header, length/3, width, max);
-        printf("\n wrong method \n");
-        for (int i = 0; i < width * length; ++i) {
-        fprintf(op, "%d ", colorarray[i]);
-        //printf("%d ", colorarray[i]);
-        }
-        free(colorarray);
-    }
-    if(strstr(output_file, ".sbu") != NULL){         // from ppm
-
-        printf("%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
-        fprintf(op, "%c%c%c\n%d %d\n%d ", header[0], header[1], header[2], length, width, colorlen/3);
-        
-        for(int z = 0; z < 0; z++){
-            fprintf(op,"%d ", bigarraybrother[z]);                   // colors 
-        }        
-        
-        fprintf(op,"\n");
-
-        for(int i = 0; i < index; i++){
-            fprintf(op,"%s ", bigarray[i]);
-            //printf("%s ", bigarray[i]);
-        }
-
-        free(bigarray);
-        free(bigarraybrother);
-    }
-    */
 
     fclose(ip);
     fclose(op);
     return 0;
 }
+
+FILE ppm_to_sbu(int *colorarray, FILE *op, unsigned int len, int width, int length){
+    int *colors_of_SBU = malloc(len);
+    int colorlen = 0, zeroifdup = 0;
+
+    for(unsigned int i = 0; i < (len/32); i+=3){
+        zeroifdup = 0;                              //assumes not duplicate
+        for(unsigned int e = 0; e < i; e+=3){                //checks if duplicate
+            if(((colors_of_SBU[e] == colorarray[i]) && (colors_of_SBU[e+1] == colorarray[i+1])
+            && (colors_of_SBU[e+2] == colorarray[i+2])) | (i == 0))
+            zeroifdup = 1;
+        }
+        if(zeroifdup == 0){                                     //copies if not duplicate
+            colors_of_SBU[colorlen] = colorarray[i];
+            colors_of_SBU[++colorlen] = colorarray[i+1];
+            colors_of_SBU[++colorlen] = colorarray[i+2];
+            colorlen++;
+        }
+    }
+
+    fprintf(op, "%s\n%d %d\n%d ", "SBU", length, width, colorlen/3);
+   // printf("%s\n%d %d\n%d ", "SBU", length, width, colorlen/3);
+
+    for(int z = 0; z < colorlen; z++){
+        //printf("%d ", colors_of_SBU[z]);
+        fprintf(op,"%d ", colors_of_SBU[z]);                   // copy colors 
+    }        
+    fprintf(op,"\n");                                           //next copy actualy payload
+    //printf("\n");
+    
+    int *bigarray_fraud = malloc(len);              //this is repeated
+
+    int fruad_indexer = 0, e = 0;
+
+    for(unsigned int i = 0; i< len/32; i+=3){                       //finds index which points to colors
+        for(e = 0; e < colorlen; e+= 3){
+            if(((colors_of_SBU[e] == colorarray[i]) && (colors_of_SBU[e+1] == colorarray[i+1])
+            && (colors_of_SBU[e+2] == colorarray[i+2])) | (i == 0))
+            break;
+        }
+        bigarray_fraud[fruad_indexer++] = (e/3);
+    }
+
+    int i = 0;
+    for(; i < fruad_indexer; i++){
+        if(bigarray_fraud[i] == bigarray_fraud[i+1]){
+            int repeater = bigarray_fraud[i], adder = 1;
+            while(repeater == bigarray_fraud[adder])
+                adder++;
+            fprintf(op,"*%d %d ", adder, repeater);                   // copy colors 
+            //printf("*%d %d ", adder, repeater);
+        }
+        else{
+            fprintf(op,"%d ", bigarray_fraud[i]);                   // copy colors 
+            //printf("%d ", bigarray_fraud[i]);
+        }
+
+    }
+
+    free(bigarray_fraud);
+    free(colors_of_SBU);
+
+    return *op;
+}
+
+FILE sbu_to_ppm(signed char **bigarray, int *bigarraybrother, FILE *op){
+    (void)bigarray;
+    (void)bigarraybrother;
+    return *op;
+}
+
+
+
 
 /*
 void my_Copy(int z, unsigned char **bigarray, unsigned int length, unsigned int width, const char *copy_arg, const char *paste_arg){
