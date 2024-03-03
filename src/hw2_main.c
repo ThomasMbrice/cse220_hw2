@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
             //printf("%s, index :%d \n", bigarray[index], index); 
             index++;            
         }
-        ..printf("finished onboard\n \n");
+        //printf("finished onboard\n \n");
     }
 
     //  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
