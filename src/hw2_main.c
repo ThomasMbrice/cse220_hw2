@@ -13,7 +13,7 @@ int checkmyCopy(const char *copy);
 int checkmyPaste(const char *paste);
 int checkmyMessaage(const char *message);
 FILE ppm_to_sbu(int *colorarray, FILE *op, unsigned int len, int width, int length);
-FILE sbu_to_ppm(signed char **bigarray, int *bigarraybrother, FILE *op);
+FILE sbu_to_ppm(signed char **bigarray, int *bigarraybrother, FILE *op, int length, int width, int colorlen);
 //void my_Copy(int z, unsigned char **bigarray, unsigned int length, unsigned int width, const char *copy_arg, const char *paste_arg);
 //void my_Message(int zero_if_ppm, char ** bigarray,unsigned int length, unsigned int width, char message_arg);
 
@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
             }
         }
         else{
-            *op = sbu_to_ppm(bigarray, bigarraybrother, op);
+            *op = sbu_to_ppm(bigarray, bigarraybrother, op, length, width, colorlen);
         }
 
         free(bigarray);
@@ -238,7 +238,7 @@ FILE ppm_to_sbu(int *colorarray, FILE *op, unsigned int len, int width, int leng
             && (colors_of_SBU[e+2] == colorarray[i+2])) | (i == 0))
             break;
         }
-        bigarray_fraud[fruad_indexer] = (e/3);
+        bigarray_fraud[fruad_indexer++] = (e/3);
         //printf("%d ", bigarray_fraud[fruad_indexer++]);
     }
     //printf("\n fruad %d \n", fruad_indexer);
@@ -269,7 +269,12 @@ FILE ppm_to_sbu(int *colorarray, FILE *op, unsigned int len, int width, int leng
     return *op;
 }
 
-FILE sbu_to_ppm(signed char **bigarray, int *bigarraybrother, FILE *op){
+FILE sbu_to_ppm(signed char **bigarray, int *bigarraybrother, FILE *op, int length, int width, int colorlen){
+    
+        fprintf(op, "%s\n%d %d\n%d ", "P3", length, width, colorlen/3);
+
+
+
     (void)bigarray;
     (void)bigarraybrother;
     return *op;
