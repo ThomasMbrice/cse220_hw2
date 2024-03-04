@@ -9,11 +9,12 @@
 #include <string.h>
 #include <unistd.h> 
 
+int extractNumber(const char *str);
 int checkmyCopy(const char *copy);
 int checkmyPaste(const char *paste);
 int checkmyMessaage(const char *message);
 FILE ppm_to_sbu(int *colorarray, FILE *op, unsigned int len, int width, int length);
-FILE sbu_to_ppm(signed char **bigarray, int *bigarraybrother, FILE *op, int length, int width, int colorlen);
+FILE sbu_to_ppm(signed char **bigarray, int *bigarraybrother, FILE *op, int length, int width, int colorlen, int super);
 //void my_Copy(int z, unsigned char **bigarray, unsigned int length, unsigned int width, const char *copy_arg, const char *paste_arg);
 //void my_Message(int zero_if_ppm, char ** bigarray,unsigned int length, unsigned int width, char message_arg);
 
@@ -186,7 +187,7 @@ int main(int argc, char **argv) {
             }
         }
         else{
-            *op = sbu_to_ppm(bigarray, bigarraybrother, op, length, width, colorlen);
+            *op = sbu_to_ppm(bigarray, bigarraybrother, op, length, width, colorlen, index);
         }
 
         free(bigarray);
@@ -269,17 +270,54 @@ FILE ppm_to_sbu(int *colorarray, FILE *op, unsigned int len, int width, int leng
     return *op;
 }
 
-FILE sbu_to_ppm(signed char **bigarray, int *bigarraybrother, FILE *op, int length, int width, int colorlen){
+FILE sbu_to_ppm(signed char **bigarray, int *bigarraybrother, FILE *op, int length, int width, int colorlen, int super){
     
-        fprintf(op, "%s\n%d %d\n%d ", "P3", length, width, colorlen/3);
+        fprintf(op, "%s\n%d %d\n%d\n", "P3", length, width, 255);
+        printf("%s\n%d %d\n%d\n", "P3", length, width, 255);
 
+        int astrix_multipli = 1, index = 0;                        //to deal with strix
 
+        for(int i = 0; i < super; i++){
 
-    (void)bigarray;
-    (void)bigarraybrother;
+            astrix_multipli = 1;
+            if(strstr((char *)bigarray[i], "*") != NULL) {          //gets astrix multipler for pixels
+                astrix_multipli = extractNumber((char *)bigarray[i]);
+                i++;
+            }
+            index = atoi(((char *)bigarray[i]))*3;              // get index
+            //printf("array pos %d  - ", i);
+            if(index+2 < colorlen){
+                if(astrix_multipli > 1){
+                    while(astrix_multipli > 0){
+                        fprintf(op,"%d ", bigarraybrother[index]);
+                                //printf("%d ", bigarraybrother[index]);
+                        fprintf(op,"%d ", bigarraybrother[index+1]);
+                                //printf("%d ", bigarraybrother[index+1]);
+                        fprintf(op,"%d ", bigarraybrother[index+2]);
+                                //printf("%d | ", bigarraybrother[index+2]);
+                        astrix_multipli--;
+                    }
+                }
+                else{
+                fprintf(op,"%d ", bigarraybrother[index]);
+                //                        printf("%d ", bigarraybrother[index]);
+                fprintf(op,"%d ", bigarraybrother[index+1]);
+                //                         printf("%d ", bigarraybrother[index+1]);
+                fprintf(op,"%d ", bigarraybrother[index+2]);
+                //                         printf("%d | ", bigarraybrother[index+2]);
+                }
+            }
+            
+        }
+
     return *op;
 }
 
+int extractNumber(const char *str) {
+    str++;
+    int num = atoi(str);
+    return num;
+}
 
 
 
