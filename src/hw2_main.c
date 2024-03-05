@@ -196,7 +196,7 @@ int main(int argc, char **argv) {
         else{
             *op = sbu_to_ppm(bigarray, bigarraybrother, op, length, width, colorlen, index);
         }
-
+     
         free(bigarray);
         free(bigarraybrother);
     }
@@ -504,8 +504,7 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
             snprintf(num_str, sizeof(num_str), "*%d", dupcounter);
             strcpy(copytemp[index++], num_str);
             copytemp[index++] = onedclone[i];
-            //printf("%s ", onedclone[i]);
-            i+=dupcounter;
+            i+=dupcounter-1;
         }   
         else{
             copytemp[index++] = onedclone[i];
