@@ -315,6 +315,10 @@ signed char **bigarray, int length, int width){
     //printf("%d %d %d %d \n", copyx, copyy, copylegnth, copywidth);
     sscanf(paste_arg, "%d,%d", &pastex, &pastey);
     //printf("%d,%d", pastex, pastey);
+    copyx *=3;
+    pastex *=3;
+    copylegnth *=3;
+
 
     if(bigarray == NULL){       // for ppm
     int **temparr = malloc(width * sizeof(int*)); // Allocate memory for array of int pointers
@@ -322,6 +326,7 @@ signed char **bigarray, int length, int width){
     for(int i = 0; i < width; i++){
         temparr[i] = malloc(length * sizeof(int)); // Allocate memory for each row
     }
+
 
     for(int i = 0; i < width; i++){
         for(int e = 0; e < length; e++){  
@@ -333,29 +338,48 @@ signed char **bigarray, int length, int width){
         for(int i = 0; i < copywidth; i++){
             copyarray[i] = malloc(copylegnth*sizeof(int));
         }
-        int temp_copyy = copyy;
+
+        int temp_copyx = copyx;
         for(int i = 0; i < copywidth; i++){
-            for(int e = 0; e < copylegnth; e++){
-                copyarray[i][e] = temparr[copyx][temp_copyy++];
+            for(int e = 0; e < copylegnth; e+=3){
+                copyarray[i][e] = temparr[copyy][temp_copyx];
+                copyarray[i][e+1] = temparr[copyy][temp_copyx+1];
+                copyarray[i][e+2] = temparr[copyy][temp_copyx+2];
+
+                //printf("%d %d %d coppy: %d  coppx: %d \n", 
+                //copyarray[i][e],copyarray[i][e+1], copyarray[i][e+2], copyy, temp_copyx);
+                temp_copyx +=3;
             }
-            copyx++;
-            temp_copyy = copyy;
+            copyy++;
+            temp_copyx = copyx;
         }
         
-        /*
-        for(int i = 0; i < copywidth; i++){
-            for(int e = 0; e < copylegnth; e++){
-                printf("%d ", copyarray[i][e]);
-            }
-        }
-        */
+        for(int i = 0; i< length * width; i+=3){
+        printf("%d ", colorarray[i]);
+        printf("%d ", colorarray[i+1]);
+        printf("%d | ", colorarray[i+2]);
+
+       }
+               printf("\n");
+
        int init = (pastex * length) + pastey;
        for(int i = 0; i < copywidth; i++){
-            for(int e = 0; e < copylegnth; e++){
+            for(int e = 0; e < copylegnth; e+=3){
                 colorarray[init++] = copyarray[i][e];
+                colorarray[init++] = copyarray[i][e+1];
+                colorarray[init++] = copyarray[i][e+2];
+
+                printf("%d-%d ", init-3, init);
             }
-            init = (pastex * length) + (pastey+i);
+            init = ((pastey+i) * length);
        }
+        printf("\n");
+        
+       for(int i = 0; i< length * width; i+=3){
+        printf("%d ", colorarray[i]);
+        printf("%d ", colorarray[i+1]);
+        printf("%d | ", colorarray[i+2]);      
+         }
 
         free(copyarray);
         free(temparr);
