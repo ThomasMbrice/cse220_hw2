@@ -408,7 +408,7 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
         free(copyarray);
         free(temparr);
     } 
-    else {                       // for SBU
+    else {                       // for SBU     //LENGTHS MIGHT NEED TO BE DIVIDED BY 3
         char ***bigarrayclone = malloc(width * sizeof(char**));
 
         for(int i = 0; i < width; i++){
@@ -423,6 +423,9 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
         int index = 0;
         for(int i = 0; i < width; i++){             // innit 2d copy
             for(int e = 0; e< length; e++){
+            if(strstr((char *)bigarray[i], "*") != NULL) {
+                bigarrayclone[i][e++] = bigarray[index++];
+            }
             bigarrayclone[i][e] = bigarray[index++];
             }
         }
@@ -439,11 +442,11 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
 
         int tempcopy = copyy;
         for (int i = 0; i < copywidth; i++) {
-            for (int e = 0; e < copylegnth; e += 3) {
-                copyarray[i][e] = bigarrayclone[copyx][tempcopy];
-                copyarray[i][e+1] = bigarrayclone[copyx][tempcopy+1];
-                copyarray[i][e+2] = bigarrayclone[copyx][tempcopy+2];
-                tempcopy += 3;
+            for (int e = 0; e < copylegnth; e++) {
+                if(strstr((char *)bigarrayclone[copyx][tempcopy], "*") != NULL) {
+                    copyarray[i][e++] = bigarrayclone[copyx][tempcopy++];          
+                }
+                copyarray[i][e] = bigarrayclone[copyx][tempcopy++];
             }
         copyx++;
         tempcopy = copyy;
@@ -451,11 +454,11 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
 
         int temppastey = pastey;
         for (int i = 0; i < copywidth; i++) {
-            for (int e = 0; e < copylegnth; e += 3) {
-                bigarrayclone[pastex][temppastey] = copyarray[i][e];
-                bigarrayclone[pastex][temppastey+1] = copyarray[i][e+1];
-                bigarrayclone[pastex][temppastey+2] = copyarray[i][e+2];
-                temppastey += 3;
+            for (int e = 0; e < copylegnth; e++) {
+                if(strstr((char *)copyarray[i][e], "*") != NULL) {
+                    bigarrayclone[pastex][temppastey++] = copyarray[i][e++];          
+                }
+                bigarrayclone[pastex][temppastey++] = copyarray[i][e];
             }
         pastex++;
         temppastey = pastey;
@@ -463,11 +466,11 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
 
         index = 0;
         for (int i = 0; i < width; i++) {
-            for (int e = 0; e < length; e+=3) {
-                bigarray[index] = bigarrayclone[i][e];
-                bigarray[index+1] = bigarrayclone[i][e+1];
-                bigarray[index+2] = bigarrayclone[i][e+2];
-                index += 3;
+            for (int e = 0; e < length; e++) {
+                if(strstr((char *)bigarrayclone[i][e], "*") != NULL) {
+                    bigarray[index++] = bigarrayclone[i][e++];
+                }
+                bigarray[index++] = bigarrayclone[i][e];
             }
         }
         free(bigarrayclone);
