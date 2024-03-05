@@ -14,8 +14,8 @@ int checkmyCopy(const char *copy);
 int checkmyPaste(const char *paste);
 int checkmyMessaage(const char *message);
 FILE ppm_to_sbu(int *colorarray, FILE *op, unsigned int len, int width, int length);
-FILE sbu_to_ppm(signed char **bigarray, int *bigarraybrother, FILE *op, int length, int width, int colorlen, int super);
-void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray, signed char **bigarray, int length, int width);
+FILE sbu_to_ppm(char **bigarray, int *bigarraybrother, FILE *op, int length, int width, int colorlen, int super);
+void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray, char **bigarray, int length, int width);
 //void my_Message(int zero_if_ppm, char ** bigarray,unsigned int length, unsigned int width, char message_arg);
 
 
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
 //________________________________________________________________________________________________end error handling
 
     char header[3] = {'i','i','i'};
-    signed char **bigarray = NULL;
+    char **bigarray = NULL;
     int *colorarray = NULL;
     int *bigarraybrother = NULL;
     int index = 0;
@@ -158,9 +158,6 @@ int main(int argc, char **argv) {
         for(int i = 0; i<width *length; i++){
             bigarray[i] = malloc(16);
         }
-        
-        if((bigarray == NULL))
-            printf("major failure");
 
         bigarraybrother = (int *)malloc(colorlen * 32);         //colorarray
 
@@ -277,10 +274,10 @@ FILE ppm_to_sbu(int *colorarray, FILE *op, unsigned int len, int width, int leng
     return *op;
 }
 
-FILE sbu_to_ppm(signed char **bigarray, int *bigarraybrother, FILE *op, int length, int width, int colorlen, int super){
+FILE sbu_to_ppm(char **bigarray, int *bigarraybrother, FILE *op, int length, int width, int colorlen, int super){
     
         fprintf(op, "%s\n%d %d\n%d\n", "P3", length, width, 255);
-        printf("%s\n%d %d\n%d\n", "P3", length, width, 255);
+        //printf("%s\n%d %d\n%d\n", "P3", length, width, 255);
 
         int astrix_multipli = 1, index = 0;                        //to deal with strix
 
@@ -328,7 +325,7 @@ int extractNumber(const char *str) {
 
 
 void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray, 
-             signed char **bigarray, int length, int width) {
+            char **bigarray, int length, int width) {
     int copyx, copyy, pastex, pastey, copylegnth, copywidth;
 
     sscanf(copy_arg, "%d,%d,%d,%d", &copyx, &copyy, &copylegnth, &copywidth);
@@ -371,7 +368,7 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
         copyx++;
         tempcopy = copyy;
         }
-        
+        /*
         for(int i = 0; i < length*width;i+=3){
             printf("%d ", colorarray[i]);
             printf("%d ", colorarray[i+1]);
@@ -379,7 +376,7 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
         }
 
         printf("\n");
-        
+        */
         int temppastey = pastey;
         for (int i = 0; i < copywidth; i++) {
             for (int e = 0; e < copylegnth; e += 3) {
@@ -401,17 +398,80 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
                 index += 3;
             }
         }
-        
+        /*
         for(int i = 0; i < length*width;i+=3){
             printf("%d ", colorarray[i]);
             printf("%d ", colorarray[i+1]);
             printf("%d | ", colorarray[i+2]);
         }
-        
+        */
         free(copyarray);
         free(temparr);
-    } else {                       // for SBU
-        // TODO
+    } 
+    else {                       // for SBU
+        char ***bigarrayclone = malloc(width * sizeof(char**));
+
+        for(int i = 0; i < width; i++){
+            bigarrayclone[i] = malloc(length * sizeof(char*));
+        }
+        for(int i = 0; i < width; i++){
+            for(int e = 0; e< length; e++){
+            bigarrayclone[i][e] = malloc(16);
+            }
+        }
+
+        int index = 0;
+        for(int i = 0; i < width; i++){             // innit 2d copy
+            for(int e = 0; e< length; e++){
+            bigarrayclone[i][e] = bigarray[index++];
+            }
+        }
+        char ***copyarray = malloc(copywidth * sizeof(char**));
+
+        for(int i = 0; i < copywidth; i++){         // copy arrayclone malloc
+            copyarray[i] = malloc(copylegnth * sizeof(char*));
+        }
+        for(int i = 0; i < width; i++){
+            for(int e = 0; e< length; e++){
+                copyarray[i][e] = malloc(16);
+            }
+        }
+
+        int tempcopy = copyy;
+        for (int i = 0; i < copywidth; i++) {
+            for (int e = 0; e < copylegnth; e += 3) {
+                copyarray[i][e] = bigarrayclone[copyx][tempcopy];
+                copyarray[i][e+1] = bigarrayclone[copyx][tempcopy+1];
+                copyarray[i][e+2] = bigarrayclone[copyx][tempcopy+2];
+                tempcopy += 3;
+            }
+        copyx++;
+        tempcopy = copyy;
+        }
+
+        int temppastey = pastey;
+        for (int i = 0; i < copywidth; i++) {
+            for (int e = 0; e < copylegnth; e += 3) {
+                bigarrayclone[pastex][temppastey] = copyarray[i][e];
+                bigarrayclone[pastex][temppastey+1] = copyarray[i][e+1];
+                bigarrayclone[pastex][temppastey+2] = copyarray[i][e+2];
+                temppastey += 3;
+            }
+        pastex++;
+        temppastey = pastey;
+        }
+
+        index = 0;
+        for (int i = 0; i < width; i++) {
+            for (int e = 0; e < length; e+=3) {
+                bigarray[index] = bigarrayclone[i][e];
+                bigarray[index+1] = bigarrayclone[i][e+1];
+                bigarray[index+2] = bigarrayclone[i][e+2];
+                index += 3;
+            }
+        }
+        free(bigarrayclone);
+        free(copyarray);
     }
 }
 
