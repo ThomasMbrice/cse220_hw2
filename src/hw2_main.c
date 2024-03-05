@@ -16,8 +16,8 @@ int checkmyMessaage(const char *message);
 FILE ppm_to_sbu(int *colorarray, FILE *op, unsigned int len, int width, int length);
 FILE sbu_to_ppm(char **bigarray, int *bigarraybrother, FILE *op, int length, int width, int colorlen, int super);
 void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray, char **bigarray, int length, int width);
-//void my_Message(int zero_if_ppm, char ** bigarray,unsigned int length, unsigned int width, char message_arg);
-
+void pixtonum(char ***bigarrayclone, int length, int width);
+void numtopix(char ***bigarrayclone, int length, int width);
 
 int main(int argc, char **argv) {
     const char *input_file = NULL;
@@ -413,6 +413,7 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
             }
         }
 
+
         int index = 0;
         for(int i = 0; i < width; i++){             // innit 2d copy
             for(int e = 0; e< length; e++){
@@ -433,13 +434,11 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
                 copyarray[i][e] = malloc(16);
             }
         }
+        pixtonum(bigarrayclone, length, width);
 
         int tempcopy = copyy;
         for (int i = 0; i < copywidth; i++) {
             for (int e = 0; e < copylegnth; e++) {
-                if(strstr((char *)bigarrayclone[copyx][tempcopy], "*") != NULL) {
-                    copyarray[i][e++] = bigarrayclone[copyx][tempcopy++];          
-                }
                 copyarray[i][e] = bigarrayclone[copyx][tempcopy++];
             }
         copyx++;
@@ -449,38 +448,21 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
         int temppastey = pastey;
         for (int i = 0; i < copywidth; i++) {
             for (int e = 0; e < copylegnth; e++) {
-                if(strstr((char *)copyarray[i][e], "*") != NULL) {
-                    bigarrayclone[pastex][temppastey++] = copyarray[i][e++];          
-                }
                 bigarrayclone[pastex][temppastey++] = copyarray[i][e];
             }
         pastex++;
         temppastey = pastey;
         }
 
-//       for(int i = 0; i < width*length;i++){
-//            printf("%s ", bigarray[i]);
-//        }   
+        numtopix(bigarrayclone, length, width);
 
         index = 0;
         for (int i = 0; i < width; i++) {
-            for (int e = 0; e < length; e++) {
-                if(index+1 > width*length)
-                    break;
-                if(strstr((char *)bigarrayclone[i][e], "*") != NULL) {
-                    bigarray[index] = bigarrayclone[i][e++];
-                }
-                else
+            for (int e = 0; e < length; e++) {            
                 bigarray[index++] = bigarrayclone[i][e];
-                
-                bigarray[++index] = bigarrayclone[i][e];
 
             }
         }
-//        printf("\n\n");
-//        for(int i = 0; i < width*length;i++){
-//            printf("%s ", bigarray[i]);
-//        }
         
         free(bigarrayclone);
         free(copyarray);
@@ -490,9 +472,85 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
 
 }
 
+void pixtonum(char ***bigarrayclone, int length, int width) {
+    int num_pixels = length * width;
+    int *counts = calloc(num_pixels, sizeof(int));
+    char **array = malloc(length * sizeof(char *));
+
+    for (int i = 0; i < length; i++) {
+        array[i] = malloc(num_pixels * sizeof(char));
+        memset(array[i], 0, num_pixels);
+    }
+
+    for (int i = 0; i < length; i++) {
+        for (int j = 0; j < width; j++) {
+            int index = i * width + j;
+            int count = 0;
+            while (array[i][index] != '\0') {
+                if (array[i][index] == '*') {
+                    count++;
+                }
+                index++;
+            }
+            if (count > 0) {
+                for (int k = 0; k < count; k++) {
+                    *(*bigarrayclone + i * width + j) = &array[i][index-1];
+                }
+            }
+        }
+    }
+
+    free(array);
+    free(counts);
+}
 
 
+void numtopix(char ***bigarrayclone, int length, int width){
+    int num_pixels = length * width;
+    int *counts = calloc(num_pixels, sizeof(int));
+    char **array = malloc(length * sizeof(char *));
 
+    for (int i = 0; i < length; i++) {
+        array[i] = malloc(num_pixels * sizeof(char));
+        memset(array[i], 0, num_pixels);
+    }
+
+    for (int i = 0; i < length; i++) {
+        for (int j = 0; j < width; j++) {
+            int index = i * width + j;
+            counts[index]++;
+            if (counts[index] == 1) {
+                array[i][index] = '*';
+            }
+            array[i][index] += '0';
+        }
+    }
+
+    *bigarrayclone = array;
+    free(counts);
+}
+
+/*
+int notzero_if_dup = 0;                        //to deal with strix
+
+    char **copyarray = malloc(width * sizeof(char*));
+
+    for(int i = 0; i < width; i++){         // copy arrayclone malloc
+        copyarray[i] = malloc(length * sizeof(char));
+    }
+    int init = 0;
+    for(int i = 0; i < width; i++){
+        for(int e = 0; e< length; e++){
+            copyarray[init++] = bigarrayclone[i][e];
+        }
+    }
+    init = 0;
+    for(int i = 0; i < width; i++){
+        for(int e = 0; e< length; e++){
+            if(copyarray == )
+        }
+    }
+*/
 
 int checkmyCopy(const char *copy){        // error handling
     int commaCount = 0;
@@ -569,14 +627,3 @@ int checkmyMessaage(const char *message){         //error check
         return 0;
 
 }
-
-/*
-void my_Message(int z, unsigned char **bigarray,unsigned int length, unsigned int width, char message_arg){
-}
-*/
-
-/*
-void my_Message(int z, unsigned char **bigarray,unsigned int length, unsigned int width, char message_arg){
-
-}
-*/
