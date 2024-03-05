@@ -371,15 +371,7 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
         copyx++;
         tempcopy = copyy;
         }
-        /*
-        for(int i = 0; i < length*width;i+=3){
-            printf("%d ", colorarray[i]);
-            printf("%d ", colorarray[i+1]);
-            printf("%d | ", colorarray[i+2]);
-        }
 
-        printf("\n");
-        */
         int temppastey = pastey;
         for (int i = 0; i < copywidth; i++) {
             for (int e = 0; e < copylegnth; e += 3) {
@@ -401,13 +393,7 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
                 index += 3;
             }
         }
-        /*
-        for(int i = 0; i < length*width;i+=3){
-            printf("%d ", colorarray[i]);
-            printf("%d ", colorarray[i+1]);
-            printf("%d | ", colorarray[i+2]);
-        }
-        */
+
         free(copyarray);
         free(temparr);
     } 
@@ -416,12 +402,11 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
         copyy /= 3;
         pastey /= 3;
         copylegnth /= 3;
-        //printf("bruj");
 
         for(int i = 0; i < width; i++){
             bigarrayclone[i] = malloc(length * sizeof(char*));
         }
-        
+ 
         for(int i = 0; i < width; i++){
             for(int e = 0; e< length; e++){
             bigarrayclone[i][e] = malloc(16);
@@ -472,30 +457,37 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
         pastex++;
         temppastey = pastey;
         }
-        /*
-        for(int i = 0; i < width*length;i++){
-            printf("%s ", bigarray[i]);
-        }   
-        */
+
+//       for(int i = 0; i < width*length;i++){
+//            printf("%s ", bigarray[i]);
+//        }   
+
         index = 0;
         for (int i = 0; i < width; i++) {
             for (int e = 0; e < length; e++) {
+                if(index+1 > width*length)
+                    break;
                 if(strstr((char *)bigarrayclone[i][e], "*") != NULL) {
-                    bigarray[index++] = bigarrayclone[i][e++];
+                    bigarray[index] = bigarrayclone[i][e++];
                 }
+                else
                 bigarray[index++] = bigarrayclone[i][e];
+                
+                bigarray[++index] = bigarrayclone[i][e];
+
             }
         }
-        /*
-        printf("\n\n");
-        for(int i = 0; i < width*length;i++){
-            printf("%s ", bigarray[i]);
-        }
-        */
+//        printf("\n\n");
+//        for(int i = 0; i < width*length;i++){
+//            printf("%s ", bigarray[i]);
+//        }
+        
         free(bigarrayclone);
         free(copyarray);
-    
+
     }
+
+
 }
 
 
