@@ -334,8 +334,8 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
     sscanf(copy_arg, "%d,%d,%d,%d", &copyx, &copyy, &copylegnth, &copywidth);
     sscanf(paste_arg, "%d,%d", &pastex, &pastey);
 
-    copyx *= 3;
-    pastex *= 3;
+    copyy *= 3;
+    pastey *= 3;
     copylegnth *= 3;
 
     if (bigarray == NULL) {       // for ppm
@@ -360,18 +360,18 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
             copyarray[i] = malloc(copylegnth * sizeof(int));
         }
 
-        int temp_copyx = copyx;
+        int tempcopy = copyy;
         for (int i = 0; i < copywidth; i++) {
             for (int e = 0; e < copylegnth; e += 3) {
-                copyarray[i][e] = temparr[copyy][temp_copyx];
-                copyarray[i][e+1] = temparr[copyy][temp_copyx+1];
-                copyarray[i][e+2] = temparr[copyy][temp_copyx+2];
-                temp_copyx += 3;
+                copyarray[i][e] = temparr[copyx][tempcopy];
+                copyarray[i][e+1] = temparr[copyx][tempcopy+1];
+                copyarray[i][e+2] = temparr[copyx][tempcopy+2];
+                tempcopy += 3;
             }
-        copyy++;
-        temp_copyx = copyx;
+        copyx++;
+        tempcopy = copyy;
         }
-        /*
+        
         for(int i = 0; i < length*width;i+=3){
             printf("%d ", colorarray[i]);
             printf("%d ", colorarray[i+1]);
@@ -379,17 +379,17 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
         }
 
         printf("\n");
-        */
-        int temppastex = pastex;
+        
+        int temppastey = pastey;
         for (int i = 0; i < copywidth; i++) {
             for (int e = 0; e < copylegnth; e += 3) {
-                temparr[pastey][temppastex] = copyarray[i][e];
-                temparr[pastey][temppastex+1] = copyarray[i][e+1];
-                temparr[pastey][temppastex+2] = copyarray[i][e+2];
-                temppastex += 3;
+                temparr[pastex][temppastey] = copyarray[i][e];
+                temparr[pastex][temppastey+1] = copyarray[i][e+1];
+                temparr[pastex][temppastey+2] = copyarray[i][e+2];
+                temppastey += 3;
             }
-        pastey++;
-        temppastex = pastex;
+        pastex++;
+        temppastey = pastey;
         }
 
         index = 0;
@@ -401,13 +401,13 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
                 index += 3;
             }
         }
-        /*
+        
         for(int i = 0; i < length*width;i+=3){
             printf("%d ", colorarray[i]);
             printf("%d ", colorarray[i+1]);
             printf("%d | ", colorarray[i+2]);
         }
-        */
+        
         free(copyarray);
         free(temparr);
     } else {                       // for SBU
