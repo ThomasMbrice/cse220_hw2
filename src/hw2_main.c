@@ -347,8 +347,11 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
         
         int index = 0;
         for (int i = 0; i < width; i++) {
-            for (int e = 0; e < length; e++) {
-                temparr[i][e] = colorarray[index++];
+            for (int e = 0; e < length; e+=3) {
+                temparr[i][e] = colorarray[index];
+                temparr[i][e+1] = colorarray[index+1];
+                temparr[i][e+2] = colorarray[index+2];
+                index+=3;
             }
         }
 
@@ -391,8 +394,11 @@ void my_Copy(const char* copy_arg, const char* paste_arg, int* colorarray,
 
         index = 0;
         for (int i = 0; i < width; i++) {
-            for (int e = 0; e < length; e++) {
-                colorarray[index++] = temparr[i][e];
+            for (int e = 0; e < length; e+=3) {
+                colorarray[index] = temparr[i][e];
+                colorarray[index+1] = temparr[i][e+1];
+                colorarray[index+2] = temparr[i][e+2];
+                index += 3;
             }
         }
         /*
